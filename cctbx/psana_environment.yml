@@ -48,6 +48,7 @@ dependencies:
  - libsvm
  - mrcfile
  - psutil
+ - setuptools<60
 
  # cctbx channel
  - libsvm_py
