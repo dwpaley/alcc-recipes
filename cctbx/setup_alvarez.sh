@@ -32,8 +32,7 @@ then
     return 1
 fi
 
-export KOKKOS_HOST=linux_a100
-mk-cctbx cuda build hot # update
+mk-cctbx cuda build hot update
 patch-dispatcher nersc
 
 cat > ${ALCC_CCTBX_ROOT}/activate.sh << EOF
