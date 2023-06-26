@@ -155,7 +155,7 @@ mk-cctbx () {
                             --config-flags="--enable_kokkos" \
                             --config-flags="--use_environment_flags" \
                             ${@:2}
-    elif [[ $1 == "kokkos_noOMP" ]]
+    elif [[ $1 == "kokkos_NOOMP" ]]
     then
         python bootstrap.py --builder=dials \
                             --python=37 \

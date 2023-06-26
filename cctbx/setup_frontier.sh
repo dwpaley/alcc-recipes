@@ -31,7 +31,7 @@ if fix-sysversions
 then
     return 1
 fi
-mk-cctbx kokkos build hot update
+mk-cctbx kokkos_NOOMP build hot update
 patch-dispatcher nersc
 
 cat > ${ALCC_CCTBX_ROOT}/activate.sh << EOF
