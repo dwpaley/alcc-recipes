@@ -5,7 +5,7 @@ set -e
 export ALCC_CCTBX_ROOT=$(readlink -f $(dirname ${BASH_SOURCE[0]}))
 export OMP_PLACES=threads
 export OMP_PROC_BIND=spread
-export KOKKOS_DEVICES="OpenMP;HIP"
+export KOKKOS_DEVICES="HIP"
 export KOKKOS_ARCH="VEGA90A"
 
 source ${ALCC_CCTBX_ROOT}/utilities.sh
@@ -41,7 +41,7 @@ load-sysenv
 activate
 export OMP_PLACES=threads
 export OMP_PROC_BIND=spread
-export KOKKOS_DEVICES="OpenMP;HIP"
+export KOKKOS_DEVICES="HIP"
 export KOKKOS_ARCH="VEGA90A"
 export SIT_DATA=\${OVERWRITE_SIT_DATA:-\$NERSC_SIT_DAT}:\$SIT_DATA
 export SIT_PSDM_DATA=\${OVERWRITE_SIT_PSDM_DATA:-\$NERSC_SIT_PSDM_DATA}
