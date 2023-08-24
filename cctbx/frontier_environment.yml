@@ -51,6 +51,7 @@ dependencies:
  - mrcfile
  - psutil
  - conda-forge::nxmx
+ - conda-forge::ncurses # avoid "libtinfo.so unknown version" error
 
  # cctbx channel
  - libsvm_py
