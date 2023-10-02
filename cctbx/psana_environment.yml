@@ -22,7 +22,7 @@ dependencies:
  - ipython
  - pybind11
  - setuptools<60
- - msgpack-c
+ - msgpack-cxx
 
  # testing
  - pytest
