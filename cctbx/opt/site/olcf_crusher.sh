@@ -4,6 +4,11 @@
 load-sysenv () {
 module load craype-accel-amd-gfx90a rocm
 
+if [[ :$LD_LIBRARY_PATH: == *:"$LLVM_PATH/lib":* ]] ; then
+    # Do nothing
+else
+    export LD_LIBRARY_PATH=$LLVM_PATH/lib:$LD_LIBRARY_PATH
+fi
 export MPICH_GPU_SUPPORT_ENABLED=1
 }
 
