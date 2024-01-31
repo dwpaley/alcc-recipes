@@ -67,6 +67,7 @@ dependencies:
  - tqdm
  - eigen
  - dials-data
+ - gemmi
 
  # xia2
  - tabulate
