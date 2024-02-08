@@ -4,7 +4,7 @@ set -e
 
 export ALCC_CCTBX_ROOT=$(readlink -f $(dirname ${BASH_SOURCE[0]}))
 export OMP_PLACES=threads
-export OMP_PROC_BIND=spread
+export OMP_PROC_BIND=false
 export KOKKOS_DEVICES="OpenMP;Cuda"
 export KOKKOS_ARCH="Ampere80"
 
@@ -41,7 +41,7 @@ load-sysenv
 activate
 
 export OMP_PLACES=threads
-export OMP_PROC_BIND=spread
+export OMP_PROC_BIND=false
 export KOKKOS_DEVICES="OpenMP;Cuda"
 export KOKKOS_ARCH="Ampere80"
 export CUDA_LAUNCH_BLOCKING=1
