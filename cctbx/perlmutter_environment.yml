@@ -1,11 +1,12 @@
 name: psana_env
 channels:
- - defaults
  - lcls-i
  - conda-forge
  - cctbx
  - pytorch
  - nvidia
+ - nodefaults
+
 dependencies:
 # Don't do these -- they interfere with NERSC systems
 # # conda compilers
@@ -70,6 +71,9 @@ dependencies:
  - eigen
  - dials-data
  - gemmi
+
+ # dxtbx
+ - natsort
 
  # xia2
  - tabulate
