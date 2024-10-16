@@ -17,7 +17,7 @@ mk-env () {
     setup-env
 
     micromamba activate
-    micromamba install python=3.8 -c defaults --yes
+    micromamba install python=3.9 -c defaults --yes
 
     if [[ $2 == "perlmutter" ]]
     then
@@ -32,8 +32,8 @@ mk-env () {
     # switch MPI backends -- the psana package explicitly downloads openmpi
     # which is incompatible with some systems
     micromamba activate psana_env
-    # HACK: mamba/micromamba does not support --force removal yet
-    # https://github.com/mamba-org/mamba/issues/412
+    # # HACK: mamba/micromamba does not support --force removal yet
+    # # https://github.com/mamba-org/mamba/issues/412
     micromamba install conda -c defaults --yes
     conda remove --force mpi4py mpi openmpi mpich --yes || true
     if [[ $1 == "conda-mpich" ]]
@@ -110,7 +110,7 @@ mk-cctbx () {
     if [[ $1 == "classic" ]]
     then
         python bootstrap.py --builder=dials \
-                            --python=37 \
+                            --python=39 \
                             --use-conda ${CONDA_PREFIX} \
                             --nproc=${NPROC:-8} \
                             --config-flags="--enable_cxx11" \
@@ -121,7 +121,7 @@ mk-cctbx () {
     elif [[ $1 == "no-boost" ]]
     then
         python bootstrap.py --builder=dials \
-                            --python=37 \
+                            --python=39 \
                             --use-conda ${CONDA_PREFIX} \
                             --nproc=${NPROC:-8} \
                             --config-flags="--enable_cxx11" \
@@ -133,7 +133,7 @@ mk-cctbx () {
     elif [[ $1 == "cuda" ]]
     then
         python bootstrap.py --builder=dials \
-                            --python=37 \
+                            --python=39 \
                             --use-conda ${CONDA_PREFIX} \
                             --nproc=${NPROC:-8} \
                             --config-flags="--enable_cxx11" \
@@ -146,7 +146,7 @@ mk-cctbx () {
     elif [[ $1 == "kokkos" ]]
     then
         python bootstrap.py --builder=dials \
-                            --python=37 \
+                            --python=39 \
                             --use-conda ${CONDA_PREFIX} \
                             --nproc=${NPROC:-8} \
                             --config-flags="--enable_cxx11" \
@@ -158,7 +158,7 @@ mk-cctbx () {
     elif [[ $1 == "kokkos_NOOMP" ]]
     then
         python bootstrap.py --builder=dials \
-                            --python=37 \
+                            --python=39 \
                             --use-conda ${CONDA_PREFIX} \
                             --nproc=${NPROC:-8} \
                             --config-flags="--enable_cxx11" \
