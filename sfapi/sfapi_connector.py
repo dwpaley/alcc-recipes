@@ -5,7 +5,19 @@ from pathlib import Path
 
 import os
 import io
+import sys
 import json
+
+import logging
+LOGGER = logging.getLogger(__name__)
+# LOGGER.setLevel(logging.DEBUG)
+HANDLER = logging.StreamHandler(sys.stdout)
+HANDLER.setFormatter(
+    logging.Formatter(
+        "[%(levelname)8s | %(filename)s:%(lineno)s] %(message)s"
+    )
+)
+LOGGER.addHandler(HANDLER)
 
 
 # TODO: replace with simple singleton
@@ -36,28 +48,59 @@ def load_key():
     return client_id, sfapi_key
 
 
-class SFAPIFile:
-    def __init__(self, name):
-        self.name = name
-        self.buffer = io.StringIO()
+class SFAPIFile(io.StringIO):
+    def __init__(self, path):
+        self.path     = path
+        self.dirname  = os.path.dirname(path)
+        self.filename = os.path.basename(path)
+
+        super().__init__()
 
     def back_to_start(self):
-        self.buffer.seek(0)
-
-    def __getattr__(self, name):
-        return getattr(self.buffer, name)
+        self.seek(0)
+        bio = io.BytesIO(self.read().encode("utf8"))
+        bio.dirname  = self.dirname
+        bio.filename = self.filename
+        return bio
 
 
 class OpenSFAPI:
     def __init__(self, file_name):
-        self.lines_buffer = SFAPIFile(file_name)
+        _, self.key    = load_key()
+        LOGGER.debug(
+            f"Intiating SFAPI connection using key file: {self.key}"
+        )
+
+        self.client    = Client(key=self.key)
+        self.user      = self.client.user()
+        self.home_path = f"/global/homes/{self.user.name[0]}/{self.user.name}/"
+        self.compute   = self.client.compute(Machine.perlmutter)
+        self.buffer = SFAPIFile(file_name.replace("~/", self.home_path))
+
+        LOGGER.info((
+            "Initiated SFAPI connection for: "
+            f"user '{self.user.name}' on machine '{self.compute.name}'"
+        ))
 
     def __enter__(self):
-        return self.lines_buffer
+        return self.buffer
 
     def __exit__(self, type, value, traceback):
-        self.lines_buffer.back_to_start()
-        print(self.lines_buffer.readlines())
+        LOGGER.info(f"Writing file to remote location: {self.buffer.path}")
+        LOGGER.debug(f"The machine is: {self.compute.status}")
+
+        LOGGER.debug(f"Ensuring that {self.buffer.dirname} exists")
+        self.compute.run(f"mkdir -p {self.buffer.dirname}")
+
+        LOGGER.debug(f"Getting remote path handle to: {self.buffer.dirname}")
+        [dir] = self.compute.ls(self.buffer.dirname, directory=True)
+
+        LOGGER.debug(f"Uploading data to: {self.buffer.filename}")
+        dir.upload(self.buffer.back_to_start())
+
+        self.client.close()
+        LOGGER.debug("DONE")
+
 
 
 class OsBackend:
