@@ -6,16 +6,15 @@ import logging
 from sfapi_client import Client, AsyncClient
 from sfapi_client.compute import Machine
 
-from sfapi_connector import load_key, OpenSFAPI, LOGGER
+from sfapi_connector import KeyManager, OpenSFAPI, LOGGER
 
 
 async def async_main():
-
-    id, key = load_key()
-    print(f"Loaded: {id=}, {key=}")
+    km = KeyManager()
+    print(f"Loaded: {km.id=}, {km.key=}")
 
     # Get the user info, "Who does the api think I am?"
-    async with AsyncClient(key=key) as client:
+    async with AsyncClient(key=km.key) as client:
         user = await client.user()
 
     # Let's see what the user object has in it
@@ -23,15 +22,12 @@ async def async_main():
 
 
 def check_dir():
-    _, key = load_key()
-
+    km = KeyManager()
     target = "~/sfapi_test"
 
-    with Client(key=key) as client:
-        user      = client.user()
-        home_path = f"/global/homes/{user.name[0]}/{user.name}/"
-        target = target.replace("~/", home_path)
-        print(f"{home_path=}, {target=}")
+    with Client(key=km.key) as client:
+        target = target.replace("~/", km.home)
+        print(f"{km.home=}, {target=}")
 
         perlmutter = client.compute(Machine.perlmutter)
         print(perlmutter.status)
@@ -44,15 +40,17 @@ def check_dir():
 def check_open():
     target = "~/sfapi_test/test.txt"
 
-    with OpenSFAPI(target) as f:
+    with OpenSFAPI(target, "w", mk_target_dir=False) as f:
         f.write("hi\n")
         f.write("ho\n")
+        f.write("hum\n")
 
 
 if __name__ == "__main__":
 
     LOGGER.setLevel(logging.DEBUG)
 
-    asyncio.run(async_main())
-    check_dir()
+    km = KeyManager()
+    # asyncio.run(async_main())
+    # check_dir()
     check_open()
