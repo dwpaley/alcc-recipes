@@ -244,7 +244,18 @@ class OsSFAPI:
 
     @staticmethod
     def mkdir(path, mode=0o777, *, dir_fd=None): 
-        pass
+        km = KeyManager()
+
+        target = path.replace("~/", km.home)
+
+        with Client(key=km.key) as client:
+            compute = client.compute(Machine.perlmutter)
+            arg = f"{json.dumps(target)}, mode={mode}, dir_fd={dir_fd}"
+            cmd = json.dumps(f"import os; os.mkdir({arg})")
+
+            LOGGER.info(f"Running: {cmd} on '{compute.name}'")
+            out = compute.run(f"python3 -c {cmd}")
+            LOGGER.info(f"Result: {out}")
 
     @staticmethod
     def stat(fd):
@@ -255,8 +266,10 @@ class OsSFAPI:
         pass
 
 
-class OsWrapper:
-
+class OsWrapper(metaclass=Singleton):
     def __init__(self, backend):
-        pass
+        self.backend = backend
+
+    def __getattr__(self, name):
+        return getattr(self.backend, name)
 

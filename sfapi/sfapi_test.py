@@ -6,7 +6,7 @@ import logging
 from sfapi_client import Client, AsyncClient
 from sfapi_client.compute import Machine
 
-from sfapi_connector import KeyManager, OpenSFAPI, LOGGER
+from sfapi_connector import KeyManager, OsSFAPI, OsWrapper, LOGGER
 
 
 async def async_main():
@@ -40,23 +40,33 @@ def check_dir():
 def check_open():
     target = "~/sfapi_test/test.txt"
 
-    with OpenSFAPI(target, "w", mk_target_dir=False) as f:
+    os = OsWrapper()
+
+    with os.open(target, "w", mk_target_dir=False) as f:
         f.write("hi\n")
         f.write("ho\n")
         f.write("hum\n")
 
-
-    with OpenSFAPI(target, "rb") as f:
+    with os.open(target, "rb") as f:
         lines = f.readlines()
 
     print(lines)
 
 
+def check_mkdir():
+    target = "~/sfapi_test/testdir3\\0\""
+
+    os = OsWrapper()
+
+    os.mkdir(target)
+
 if __name__ == "__main__":
 
     LOGGER.setLevel(logging.DEBUG)
+    os = OsWrapper(backend=OsSFAPI)
 
     km = KeyManager()
     # asyncio.run(async_main())
     # check_dir()
-    check_open()
+    # check_open()
+    check_mkdir()
