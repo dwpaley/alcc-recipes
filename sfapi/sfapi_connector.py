@@ -123,6 +123,12 @@ class SFAPIFile(io.StringIO):
         bio.filename = self.filename
         return bio
 
+    def set_data(self, data):
+        old_data = self.back_to_start()
+        self.write(data)
+        self.seek(0)
+        return old_data
+
 
 class OpenSFAPI:
     def __init__(self, path, mode, mk_target_dir=False):
@@ -138,10 +144,6 @@ class OpenSFAPI:
         if not input_mode_chars.issubset(valid_mode_chars):
             raise ValueError(f"invalid mode: '{mode}'")
 
-        # we don't support read/write
-        if "r" in input_mode_chars and "w" in input_mode_chars:
-            raise ValueError(f"invalid mode: '{mode}', 'rw' not supported.")
-
         self._km = KeyManager()
 
         LOGGER.debug(
@@ -152,17 +154,44 @@ class OpenSFAPI:
         self.compute = self.client.compute(Machine.perlmutter)
         self.buffer  = SFAPIFile(path.replace("~/", self._km.home))
 
+        if "w" in input_mode_chars:
+            self.write_mode = True
+        else:
+            self.write_mode = False
+
+        if "r" in input_mode_chars:
+            self.read_mode = True
+
+            LOGGER.debug(f"Getting remote path handle to: {self.buffer.path}")
+            [dir] = self.compute.ls(self.buffer.dirname, directory=False)
+
+            LOGGER.info(f"Downloading data from: {self.buffer.path}")
+            binary = "b" in input_mode_chars
+            data   = dir.download(binary).read()
+            if binary:
+                self.buffer.set_data(data.decode("utf8"))
+            else:
+                self.buffer.set_data(data)
+        else:
+            self.read_mode = False
+
         LOGGER.info((
             "Initiated SFAPI connection for: "
             f"user '{self._km.user.name}' on machine '{self.compute.name}'"
         ))
 
-        self.mk_target_dir = mk_target_dir
+        self.mk_target_dir = False if "r" in input_mode_chars else mk_target_dir
+            
 
     def __enter__(self):
         return self.buffer
 
     def __exit__(self, type, value, traceback):
+        if not self.write_mode:
+            self.client.close()
+            LOGGER.debug("File not opened for writing => skipping upload")
+            return
+
         LOGGER.info(f"Writing file to remote location: {self.buffer.path}")
         LOGGER.debug(f"The machine is: {self.compute.status}")
 

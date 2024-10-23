@@ -46,6 +46,12 @@ def check_open():
         f.write("hum\n")
 
 
+    with OpenSFAPI(target, "rb") as f:
+        lines = f.readlines()
+
+    print(lines)
+
+
 if __name__ == "__main__":
 
     LOGGER.setLevel(logging.DEBUG)
