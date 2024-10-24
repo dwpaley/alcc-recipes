@@ -1,10 +1,14 @@
 #!/usr/bin/env python
 
+import time
 import asyncio
 import logging
 
-from sfapi_client import Client, AsyncClient
+from os.path import join
+
+from sfapi_client         import Client, AsyncClient
 from sfapi_client.compute import Machine
+from sfapi_client.jobs    import JobState
 
 from sfapi_connector import KeyManager, OsSFAPI, OsWrapper, LOGGER
 
@@ -69,12 +73,61 @@ def check_mkdir():
 
     os.mkdir(target)
 
+
 def check_chmod():
     target = "~/sfapi_test/testdir1"
 
     os = OsWrapper()
 
     os.chmod(target, 0o600)
+
+
+def submit_job():
+    N = 1000
+
+    target = "~/sfapi_test"
+
+    job_script = f"""#!/bin/bash
+#SBATCH -q debug
+#SBATCH -A lcls
+#SBATCH -N 1
+#SBATCH -C cpu
+#SBATCH -t 00:01:00
+#SBATCH -J sfapi-demo
+#SBATCH --exclusive
+#SBATCH --output={target}/sfapi-demo-%j.out
+#SBATCH --error={target}/sfapi-demo-%j.error
+
+module load python
+# Prints N random numbers to form a normal disrobution
+python -c "import numpy as np; numbers = np.random.normal(size={N}); [print(n) for n in numbers]"
+    """ 
+
+    os = OsWrapper()
+    job_stript_path = join(target, "job_script.sh")
+
+    with os.open(job_stript_path, "w", mk_target_dir=False) as f:
+        f.write(job_script)
+
+    km = KeyManager()
+    with Client(key=km.key) as client:
+        perlmutter = client.compute(Machine.perlmutter)
+        [job_script_remote] = perlmutter.ls(
+            job_stript_path.replace("~/", km.home), directory=False
+        )
+
+        print(f"Jobscript is at: {job_script_remote}")
+
+        job = perlmutter.submit_job(job_script_remote)
+        print(f"Submitted_job: {job.jobid}")
+
+        while True:
+            job.update()
+            print(f"The job state is: {job.state} ({type(job.state)})")
+            if job.state not in [JobState.PENDING, JobState.RUNNING, JobState.COMPLETING]:
+                break
+            time.sleep(10)
+
 
 
 if __name__ == "__main__":
@@ -88,4 +141,5 @@ if __name__ == "__main__":
     # check_open()
     # check_mkdir()
     # check_stat()
-    check_chmod()
+    # check_chmod()
+    submit_job()
