@@ -53,12 +53,29 @@ def check_open():
     print(lines)
 
 
+def check_stat():
+    target = "~/sfapi_test/test.txt"
+
+    os = OsWrapper()
+
+    st = os.stat(target)
+    print(st)
+
+
 def check_mkdir():
-    target = "~/sfapi_test/testdir3\\0\""
+    target = "~/sfapi_test/testdir4"
 
     os = OsWrapper()
 
     os.mkdir(target)
+
+def check_chmod():
+    target = "~/sfapi_test/testdir1"
+
+    os = OsWrapper()
+
+    os.chmod(target, 0o600)
+
 
 if __name__ == "__main__":
 
@@ -69,4 +86,6 @@ if __name__ == "__main__":
     # asyncio.run(async_main())
     # check_dir()
     # check_open()
-    check_mkdir()
+    # check_mkdir()
+    # check_stat()
+    check_chmod()

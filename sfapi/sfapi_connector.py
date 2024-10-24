@@ -245,7 +245,6 @@ class OsSFAPI:
     @staticmethod
     def mkdir(path, mode=0o777, *, dir_fd=None): 
         km = KeyManager()
-
         target = path.replace("~/", km.home)
 
         with Client(key=km.key) as client:
@@ -255,15 +254,45 @@ class OsSFAPI:
 
             LOGGER.info(f"Running: {cmd} on '{compute.name}'")
             out = compute.run(f"python3 -c {cmd}")
-            LOGGER.info(f"Result: {out}")
+            LOGGER.debug(f"Result: {out}")
 
     @staticmethod
     def stat(fd):
-        pass
+        km = KeyManager()
+        target = fd.replace("~/", km.home)
+
+        with Client(key=km.key) as client:
+            compute = client.compute(Machine.perlmutter)
+            arg = f"{json.dumps(target)}"
+            cmd = json.dumps(
+                f"import os; import json; print(json.dumps(os.stat({arg})))"
+            )
+
+            LOGGER.info(f"Running: {cmd} on '{compute.name}'")
+            out = compute.run(f"python3 -c {cmd}")
+            remote_stat = os.stat_result(json.loads(out))
+            LOGGER.debug(f"Result: {remote_stat}")
+
+            return remote_stat
 
     @staticmethod
     def chmod(path, mode, *, dir_fd=None, follow_symlinks=True):
-        pass
+        km = KeyManager()
+        target = path.replace("~/", km.home)
+
+        with Client(key=km.key) as client:
+            compute = client.compute(Machine.perlmutter)
+            arg = (
+                    f"{json.dumps(target)}, "
+                    f"{oct(mode)}, "
+                    f"dir_fd={dir_fd}, "
+                    f"follow_symlinks={follow_symlinks}"
+            )
+            cmd = json.dumps(f"import os; os.chmod({arg})")
+
+            LOGGER.info(f"Running: {cmd} on '{compute.name}'")
+            out = compute.run(f"python3 -c {cmd}")
+            LOGGER.debug(f"Result: {out}")
 
 
 class OsWrapper(metaclass=Singleton):
