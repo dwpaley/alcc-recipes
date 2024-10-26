@@ -209,28 +209,28 @@ class OpenSFAPI:
         LOGGER.debug("DONE")
 
 
-class OsBackend:
-    @staticmethod
-    def open(
-        file,
-        mode='r', buffering=-1, encoding=None, errors=None, newline=None,
-        closefd=True, opener=None
-    ):
-        return open(
-            file, mode, buffering, encoding, errors, newline, closefd, opener
-        )
-
-    @staticmethod
-    def mkdir(path, mode=0o777, *, dir_fd=None): 
-        return os.mkdir(path, mode, dir_fd)
-
-    @staticmethod
-    def stat(fd):
-        return os.stat(fd)
-
-    @staticmethod
-    def chmod(path, mode, *, dir_fd=None, follow_symlinks=True):
-        os.chmod(path, mode, dir_fd, follow_symlinks)
+# class OsBackend:
+#     @staticmethod
+#     def open(
+#         file,
+#         mode='r', buffering=-1, encoding=None, errors=None, newline=None,
+#         closefd=True, opener=None
+#     ):
+#         return open(
+#             file, mode, buffering, encoding, errors, newline, closefd, opener
+#         )
+# 
+#     @staticmethod
+#     def mkdir(path, mode=0o777, *, dir_fd=None): 
+#         return os.mkdir(path, mode, dir_fd)
+# 
+#     @staticmethod
+#     def stat(fd):
+#         return os.stat(fd)
+# 
+#     @staticmethod
+#     def chmod(path, mode, *, dir_fd=None, follow_symlinks=True):
+#         os.chmod(path, mode, dir_fd, follow_symlinks)
 
 
 class OsSFAPI:
@@ -293,6 +293,9 @@ class OsSFAPI:
             LOGGER.info(f"Running: {cmd} on '{compute.name}'")
             out = compute.run(f"python3 -c {cmd}")
             LOGGER.debug(f"Result: {out}")
+
+    def __getattr__(self, name):
+        return getattr(os, name)
 
 
 class OsWrapper(metaclass=Singleton):

@@ -133,7 +133,7 @@ python -c "import numpy as np; numbers = np.random.normal(size={N}); [print(n) f
 if __name__ == "__main__":
 
     LOGGER.setLevel(logging.DEBUG)
-    os = OsWrapper(backend=OsSFAPI)
+    os = OsWrapper(backend=OsSFAPI())
 
     km = KeyManager()
     # asyncio.run(async_main())
