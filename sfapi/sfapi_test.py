@@ -129,6 +129,12 @@ python -c "import numpy as np; numbers = np.random.normal(size={N}); [print(n) f
             time.sleep(10)
 
 
+def check_exists():
+    os = OsWrapper()
+    print(os.path.exists("~/sfapi_test/does_not_exist.txt"))
+    print(os.path.exists("~/sfapi_test/"))
+    print(os.path.exists("~/sfapi_test/test.txt"))
+
 
 if __name__ == "__main__":
 
@@ -136,10 +142,11 @@ if __name__ == "__main__":
     os = OsWrapper(backend=OsSFAPI())
 
     km = KeyManager()
-    # asyncio.run(async_main())
+    asyncio.run(async_main())
     # check_dir()
     # check_open()
     # check_mkdir()
     # check_stat()
     # check_chmod()
-    submit_job()
+    # submit_job()
+    check_exists()
