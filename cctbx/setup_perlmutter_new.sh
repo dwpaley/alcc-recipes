@@ -1,6 +1,6 @@
 #!/bin/bash
 
-set -e
+set -eu
 
 export ALCC_CCTBX_ROOT=$(readlink -f $(dirname ${BASH_SOURCE[0]}))
 export OMP_PLACES=threads
