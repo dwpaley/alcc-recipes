@@ -7,9 +7,10 @@ channels:
 
 dependencies:
 # Don't do these -- they interfere with NERSC systems
-# # conda compilers
-# - c-compiler
-# - cxx-compiler
+ # conda compilers
+ - c-compiler
+ - cxx-compiler
+ - gcc<13 # compatibility with NERSC CUDA
 
  # compilers
  - scons
@@ -18,7 +19,7 @@ dependencies:
  - psana
 
  # python
- - python
+ - python=3.11
  - biopython
  - ipython
  - pybind11

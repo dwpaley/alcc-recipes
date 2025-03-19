@@ -16,15 +16,18 @@ setup-env () {
 mk-env () {
     setup-env
 
+    native_cc=$(which cc)
+    native_CC=$(which CC)
+
     micromamba activate
-    micromamba install python=3.9 -c defaults --yes
+    micromamba install python=3.11 -c defaults --yes
 
     if [[ $2 == "perlmutter" ]]
     then
         micromamba create -f ${ROOT_PREFIX}/perlmutter_environment.yml --yes
     elif [[ $2 == "frontier" ]]
     then
-	micromamba create -f ${ROOT_PREFIX}/frontier_environment.yml --yes
+        micromamba create -f ${ROOT_PREFIX}/frontier_environment.yml --yes
     else
         micromamba create -f ${ROOT_PREFIX}/psana_environment.yml --yes
     fi
@@ -36,6 +39,9 @@ mk-env () {
     # # https://github.com/mamba-org/mamba/issues/412
     micromamba install conda -c defaults --yes
     conda remove --force mpi4py mpi openmpi mpich --yes || true
+
+    echo "MPI4PY build using native_cc=${native_cc} native_CC=${native_CC}"
+
     if [[ $1 == "conda-mpich" ]]
     then
         micromamba install mpich mpi4py mpich -c defaults --yes
@@ -45,19 +51,19 @@ mk-env () {
             mpi4py mpi4py
     elif [[ $1 == "cray-mpich" ]]
     then
-        MPICC="cc -shared" pip install --no-binary mpi4py --no-cache-dir \
+        MPICC="${native_cc} -shared" pip install --no-binary mpi4py --no-cache-dir \
             mpi4py mpi4py
     elif [[ $1 == "cray-cuda-mpich" ]]
     then
-        MPICC="$(which cc) -shared -lcuda -lcudart -lmpi -lgdrapi"\
+        MPICC="${native_cc} -shared -lcuda -lcudart -lmpi -lgdrapi"\
             pip install --no-binary mpi4py --no-cache-dir mpi4py mpi4py
     elif [[ $1 == "cray-cuda-mpich-perlmutter" ]]
     then
-        MPICC="$(which cc) -shared -target-accel=nvidia80 -lmpi -lgdrapi"\
+        MPICC="${native_cc} -shared -target-accel=nvidia80 -lmpi -lgdrapi"\
             pip install --no-binary mpi4py --no-cache-dir mpi4py mpi4py
     elif [[ $1 == "cray-hip-mpich" ]]
     then
-       MPICC="$(which cc) -shared -lmpi -I${ROCM_PATH}/include -L${ROCM_PATH}/lib -lamdhip64 -lhsa-runtime64"\
+       MPICC="${native_cc} -shared -lmpi -I${ROCM_PATH}/include -L${ROCM_PATH}/lib -lamdhip64 -lhsa-runtime64"\
            pip install --no-binary mpi4py --no-cache-dir mpi4py mpi4py
     fi
 
@@ -107,24 +113,27 @@ mk-cctbx () {
 
     pushd ${ROOT_PREFIX}
 
+    gcc --version
+
     if [[ $1 == "classic" ]]
     then
         python bootstrap.py --builder=dials \
-                            --python=39 \
+                            --python=310 \
                             --use-conda ${CONDA_PREFIX} \
                             --nproc=${NPROC:-8} \
-                            --config-flags="--enable_cxx11" \
+                            --config-flags="--cxxstd=c++14" \
                             --config-flags="--no_bin_python" \
                             --config-flags="--enable_openmp_if_possible=True" \
                             --config-flags="--use_environment_flags" \
+                            --no-boost-src \
                             ${@:2}
     elif [[ $1 == "no-boost" ]]
     then
         python bootstrap.py --builder=dials \
-                            --python=39 \
+                            --python=310 \
                             --use-conda ${CONDA_PREFIX} \
                             --nproc=${NPROC:-8} \
-                            --config-flags="--enable_cxx11" \
+                            --config-flags="--cxxstd=c++14" \
                             --config-flags="--no_bin_python" \
                             --config-flags="--enable_openmp_if_possible=True" \
                             --config-flags="--use_environment_flags" \
@@ -133,39 +142,42 @@ mk-cctbx () {
     elif [[ $1 == "cuda" ]]
     then
         python bootstrap.py --builder=dials \
-                            --python=39 \
+                            --python=310 \
                             --use-conda ${CONDA_PREFIX} \
                             --nproc=${NPROC:-8} \
-                            --config-flags="--enable_cxx11" \
+                            --config-flags="--cxxstd=c++14" \
                             --config-flags="--no_bin_python" \
                             --config-flags="--enable_openmp_if_possible=True" \
                             --config-flags="--enable_cuda" \
                             --config-flags="--enable_kokkos" \
                             --config-flags="--use_environment_flags" \
+                            --no-boost-src \
                             ${@:2}
     elif [[ $1 == "kokkos" ]]
     then
         python bootstrap.py --builder=dials \
-                            --python=39 \
+                            --python=310 \
                             --use-conda ${CONDA_PREFIX} \
                             --nproc=${NPROC:-8} \
-                            --config-flags="--enable_cxx11" \
+                            --config-flags="--cxxstd=c++14" \
                             --config-flags="--no_bin_python" \
                             --config-flags="--enable_openmp_if_possible=True" \
                             --config-flags="--enable_kokkos" \
                             --config-flags="--use_environment_flags" \
+                            --no-boost-src \
                             ${@:2}
     elif [[ $1 == "kokkos_NOOMP" ]]
     then
         python bootstrap.py --builder=dials \
-                            --python=39 \
+                            --python=310 \
                             --use-conda ${CONDA_PREFIX} \
                             --nproc=${NPROC:-8} \
-                            --config-flags="--enable_cxx11" \
+                            --config-flags="--cxxstd=c++14" \
                             --config-flags="--no_bin_python" \
                             --config-flags="--enable_openmp_if_possible=False" \
                             --config-flags="--enable_kokkos" \
                             --config-flags="--use_environment_flags" \
+                            --no-boost-src \
                             ${@:2}
     fi
     popd
