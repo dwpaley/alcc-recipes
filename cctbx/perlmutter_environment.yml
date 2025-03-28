@@ -60,8 +60,7 @@ dependencies:
  # dials
  - jinja2
  - msgpack-python
- - orderedset
- - procrunner
+ - ordered-set
  - python-blosc
  - scikit-learn
  - tqdm
