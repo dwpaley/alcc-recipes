@@ -1,6 +1,6 @@
 name: psana_env
 channels:
- - lcls-i
+ - lcls-ii
  - conda-forge
  - cctbx
  - nodefaults
@@ -19,7 +19,7 @@ dependencies:
  - psana
 
  # python
- - python=3.11
+ - python
  - biopython
  - ipython
  - pybind11
