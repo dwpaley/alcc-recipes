@@ -22,7 +22,7 @@ ${ALCC_CCTBX_ROOT}/update_bootstrap.sh
 #     fi
 # }
 
-${ALCC_CCTBX_ROOT}/opt/get_mamba_linux-64.sh
+${ALCC_CCTBX_ROOT}/opt/get_conda_linux-64.sh
 
 load-sysenv
 
