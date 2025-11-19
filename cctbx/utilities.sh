@@ -20,12 +20,12 @@ mk-env () {
 
     if [[ $2 == "perlmutter" ]]
     then
-        conda create -f ${ROOT_PREFIX}/perlmutter_environment.yml --yes
+        conda env create -f ${ROOT_PREFIX}/perlmutter_environment.yml --yes
     elif [[ $2 == "frontier" ]]
     then
-        conda create -f ${ROOT_PREFIX}/frontier_environment.yml --yes
+        conda env create -f ${ROOT_PREFIX}/frontier_environment.yml --yes
     else
-        conda create -f ${ROOT_PREFIX}/psana_environment.yml --yes
+        conda env create -f ${ROOT_PREFIX}/psana_environment.yml --yes
     fi
 
     # switch MPI backends -- the psana package explicitly downloads openmpi
