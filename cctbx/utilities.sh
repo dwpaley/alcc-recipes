@@ -34,6 +34,8 @@ mk-env () {
     conda remove --force mpi4py mpi openmpi --yes || true
     # mpich may not be present, but if it is, we remove that too
     conda remove --force mpich --yes || true
+    # Same for libfabric, which comes in with psana-ii and shadows the cray version
+    conda remove --force libfabric --yes || true
 
     echo "MPI4PY build using native_cc=${native_cc} native_CC=${native_CC}"
 
