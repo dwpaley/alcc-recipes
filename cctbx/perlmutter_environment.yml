@@ -26,6 +26,8 @@ dependencies:
  - setuptools
  - msgpack-cxx
  - hatchling
+ - boost
+ - boost-cpp
 
  # testing
  - pytest
