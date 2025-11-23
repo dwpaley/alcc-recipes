@@ -20,17 +20,17 @@ mk-env () {
 
     if [[ $2 == "perlmutter" ]]
     then
-        conda env create -f ${ROOT_PREFIX}/perlmutter_environment.yml --yes
+        conda env create -f ${ROOT_PREFIX}/perlmutter_environment.yml -p ${ROOT_PREFIX}/opt/envs/psana_env --yes
     elif [[ $2 == "frontier" ]]
     then
-        conda env create -f ${ROOT_PREFIX}/frontier_environment.yml --yes
+        conda env create -f ${ROOT_PREFIX}/frontier_environment.yml -p ${ROOT_PREFIX}/opt/envs/psana_env --yes
     else
-        conda env create -f ${ROOT_PREFIX}/psana_environment.yml --yes
+        conda env create -f ${ROOT_PREFIX}/psana_environment.yml -p ${ROOT_PREFIX}/opt/envs/psana_env --yes
     fi
 
     # switch MPI backends -- the psana package explicitly downloads openmpi
     # which is incompatible with some systems
-    conda activate psana_env
+    conda activate ${ROOT_PREFIX}/opt/envs/psana_env
     conda remove --force mpi4py mpi openmpi --yes || true
     # mpich may not be present, but if it is, we remove that too
     conda remove --force mpich --yes || true
@@ -100,7 +100,7 @@ EOF
 
 env-activate () {
     setup-env
-    conda activate psana_env
+    conda activate ${ROOT_PREFIX}/opt/envs/psana_env
 }
 
 
